@@ -1,7 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Enable static export for S3 + CloudFront hosting
+  output: 'export',
+
+  // Optimize images for static hosting
+  images: {
+    unoptimized: true, // Required for static export
+  },
+
+  // Better compatibility with S3 routing
+  trailingSlash: true,
 };
 
 export default nextConfig;
