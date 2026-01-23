@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Boston Underwood's Portfolio
+
+A modern, dynamic portfolio website showcasing projects, experiences, and creative work. Built with Next.js, TypeScript, and Tailwind CSS, featuring smooth animations, interactive components, and a beautiful dark mode design.
+
+## Features
+
+- **Animated Hero Section** - Eye-catching typing effect and gradient text with floating background elements
+- **Featured Projects Showcase** - Highlighting key projects including:
+  - Thrifthood AI (LangChain, TypeScript, Supabase)
+  - CineNiche Streaming Platform (React, C#, ASP.NET, Azure)
+  - Gronk Bot (Snowflake, Python, NFL Analytics)
+- **Interactive Project Cards** - Hover effects and gradient backgrounds with links to demos and presentations
+- **Life Snapshots Gallery** - Photo grid showcasing personal moments
+- **About Page** - Interactive headshot shuffler and detailed background information
+- **Projects Page** - Complete portfolio of technical work and side projects
+- **Dark Mode Support** - Seamless light/dark theme switching
+- **Responsive Design** - Mobile-first approach that looks great on all devices
+- **Smooth Animations** - Fade-in effects, parallax scrolling, and micro-interactions
+
+## Tech Stack
+
+- **Framework**: Next.js 16 with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS v4
+- **UI Components**: Custom React components with glassmorphism effects
+- **Icons & Assets**: Next.js Image optimization
+- **Deployment**: Configured for static export to AWS S3/CloudFront
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+ installed
+- npm or yarn package manager
+
+### Installation
+
+1. Clone the repository
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Build for Production
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Generate a static export for deployment:
 
-## Learn More
+```bash
+npm run build
+```
 
-To learn more about Next.js, take a look at the following resources:
+The static files will be output to the `out` directory.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+portfolio-website/
+├── src/
+│   ├── app/              # Next.js app router pages
+│   ├── components/       # Reusable React components
+│   └── styles/           # Global styles
+├── public/
+│   └── images/           # Static assets and photos
+└── package.json
+```
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This portfolio is configured for static site generation and deployed to AWS S3 with CloudFront CDN for optimal performance and global distribution.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+
+© 2026 Boston Underwood. All rights reserved.
