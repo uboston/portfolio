@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>River Rush</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a1628;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+    canvas {
+      display: block;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="game"></canvas>
+  <script>
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+
+    const W = canvas.width = Math.min(480, window.innerWidth);
+    const H = canvas.height = Math.min(800, window.innerHeight);
+
+    // Game state
+    let state = 'menu'; // menu, playing, dead
+    let score = 0;
+    let highScore = 0;
+    let distance = 0;
+    let difficulty = 1;
+    let shakeTimer = 0;
+    let shakeIntensity = 0;
+    let flashAlpha = 0;
+
+    // River
+    const baseRiverLeft = 40;
+    const baseRiverRight = W - 40;
+    const baseRiverWidth = baseRiverRight - baseRiverLeft;
+    let riverLeft = baseRiverLeft;
+    let riverRight = baseRiverRight;
+    let riverWidth = baseRiverWidth;
+
+    // Canyon system
+    let canyonState = 'normal'; // normal, narrowing, canyon, widening
+    let canyonTimer = 0;
+    let canyonDuration = 0;
+    let canyonSqueeze = 0; // 0 = full width, 1 = max squeeze
+    let canyonTargetSqueeze = 0;
+    let canyonWarning = 0;
+    let nextCanyonDistance = 800;
+
+    // Kayaker
+    const kayaker = {
+      x: W / 2,
+      y: H * 0.75,
+      w: 28,
+      h: 52,
+      targetX: W / 2,
+      speed: 0,
+      tilt: 0,
+      paddleAnim: 0,
+      invincible: 0,
+      lives: 3
+    };
+
+    // Water particles
+    let waterParticles = [];
+    let splashParticles = [];
+    let obstacles = [];
+    let collectibles = [];
+    let riverBanks = [];
+    let wakeTrail = [];
+
+    // Input
+    let inputX = null;
+    let touching = false;
+    let keys = { left: false, right: false };
+
+    // Colors
+    const colors = {
+      deepWater: '#1a5276',
+      water: '#2980b9',
+      lightWater: '#5dade2',
+      foam: '#d6eaf8',
+      bank: '#2d5016',
+      bankDark: '#1e3a0e',
+      sand: '#c4a44a',
+      kayakBody: '#e67e22',
+      kayakDark: '#d35400',
+      kayakHighlight: '#f39c12',
+      paddle: '#ecf0f1',
+      paddleShaft: '#7f8c8d',
+      rock: '#5d6d7e',
+      rockDark: '#2c3e50',
+      rockLight: '#85929e',
+      log: '#6e4b2a',
+      logDark: '#4a3218',
+      whirlpool: '#1a3c5e',
+      coin: '#f1c40f',
+      coinDark: '#d4ac0f',
+      heart: '#e74c3c'
+    };
+
+    // Generate initial bank shapes
+    function initBanks() {
+      riverBanks = [];
+      for (let y = -100; y < H + 200; y += 20) {
+        riverBanks.push({
+          y: y,
+          leftOffset: Math.sin(y * 0.008) * 15 + Math.sin(y * 0.003) * 10,
+          rightOffset: Math.cos(y * 0.006) * 15 + Math.sin(y * 0.004) * 10
+        });
+      }
+    }
+
+    function init() {
+      kayaker.x = W / 2;
+      kayaker.targetX = W / 2;
+      kayaker.lives = 3;
+      kayaker.invincible = 0;
+      kayaker.paddleAnim = 0;
+      score = 0;
+      distance = 0;
+      difficulty = 1;
+      obstacles = [];
+      collectibles = [];
+      waterParticles = [];
+      splashParticles = [];
+      wakeTrail = [];
+      initBanks();
+      spawnInitialWater();
+    }
+
+    function spawnInitialWater() {
+      for (let i = 0; i < 60; i++) {
+        waterParticles.push({
+          x: riverLeft + Math.random() * riverWidth,
+          y: Math.random() * H,
+          speed: 2 + Math.random() * 3,
+          size: 1 + Math.random() * 2,
+          alpha: 0.2 + Math.random() * 0.4
+        });
+      }
+    }
+
+    // Obstacle types
+    function spawnObstacle() {
+      const types = ['rock', 'log', 'whirlpool'];
+      let weights;
+      if (difficulty < 3) {
+        weights = [0.6, 0.3, 0.1];
+      } else if (difficulty < 6) {
+        weights = [0.4, 0.35, 0.25];
+      } else {
+        weights = [0.35, 0.3, 0.35];
+      }
+
+      const r = Math.random();
+      let type;
+      if (r < weights[0]) type = 'rock';
+      else if (r < weights[0] + weights[1]) type = 'log';
+      else type = 'whirlpool';
+
+      const margin = Math.min(60, riverWidth * 0.15);
+      const x = riverLeft + margin + Math.random() * (riverWidth - margin * 2);
+
+      const obs = {
+        type,
+        x,
+        y: -80,
+        speed: 2 + difficulty * 0.3,
+        rotation: Math.random() * Math.PI * 2,
+        rotSpeed: (Math.random() - 0.5) * 0.02,
+        scale: 0.8 + Math.random() * 0.4
+      };
+
+      if (type === 'rock') {
+        obs.w = 30 + Math.random() * 25;
+        obs.h = 25 + Math.random() * 20;
+        obs.points = [];
+        const numPts = 6 + Math.floor(Math.random() * 4);
+        for (let i = 0; i < numPts; i++) {
+          const angle = (i / numPts) * Math.PI * 2;
+          const rad = (0.7 + Math.random() * 0.3);
+          obs.points.push({ angle, rad });
+        }
+      } else if (type === 'log') {
+        obs.w = 60 + Math.random() * 40;
+        obs.h = 14 + Math.random() * 6;
+        obs.rotation = Math.random() * Math.PI;
+        obs.rotSpeed = (Math.random() - 0.5) * 0.01;
+      } else {
+        obs.w = 50 + Math.random() * 20;
+        obs.h = obs.w;
+        obs.phase = Math.random() * Math.PI * 2;
+      }
+
+      obstacles.push(obs);
+    }
+
+    function updateCanyon() {
+      const dist = distance;
+
+      switch (canyonState) {
+        case 'normal':
+          canyonTargetSqueeze = 0;
+          if (dist > nextCanyonDistance && difficulty > 1.5) {
+            canyonState = 'narrowing';
+            canyonWarning = 120;
+            // Squeeze harder at higher difficulty, max 0.55
+            const maxSqueeze = Math.min(0.55, 0.2 + (difficulty - 1.5) * 0.04);
+            canyonTargetSqueeze = 0.2 + Math.random() * (maxSqueeze - 0.2);
+            canyonDuration = 300 + Math.floor(difficulty * 40);
+            canyonTimer = 0;
+          }
+          break;
+
+        case 'narrowing':
+          canyonWarning = Math.max(0, canyonWarning - 1);
+          canyonSqueeze += (canyonTargetSqueeze - canyonSqueeze) * 0.02;
+          if (Math.abs(canyonSqueeze - canyonTargetSqueeze) < 0.01) {
+            canyonSqueeze = canyonTargetSqueeze;
+            canyonState = 'canyon';
+            canyonTimer = canyonDuration;
+          }
+          break;
+
+        case 'canyon':
+          canyonTimer--;
+          if (canyonTimer <= 0) {
+            canyonState = 'widening';
+          }
+          break;
+
+        case 'widening':
+          canyonSqueeze += (0 - canyonSqueeze) * 0.03;
+          if (canyonSqueeze < 0.01) {
+            canyonSqueeze = 0;
+            canyonState = 'normal';
+            // Next canyon comes sooner at higher difficulty
+            const gap = Math.max(300, 800 - difficulty * 50);
+            nextCanyonDistance = dist + gap + Math.random() * 400;
+          }
+          break;
+      }
+
+      // Update river boundaries based on squeeze
+      const squeeze = canyonSqueeze * baseRiverWidth * 0.5;
+      riverLeft = baseRiverLeft + squeeze;
+      riverRight = baseRiverRight - squeeze;
+      riverWidth = riverRight - riverLeft;
+    }
+
+    function spawnCollectible() {
+      const margin = Math.min(60, riverWidth * 0.15);
+      const x = riverLeft + margin + Math.random() * (riverWidth - margin * 2);
+      const type = Math.random() < 0.15 ? 'heart' : 'coin';
+      collectibles.push({
+        type,
+        x,
+        y: -30,
+        speed: 2 + difficulty * 0.3,
+        bobPhase: Math.random() * Math.PI * 2,
+        collected: false,
+        collectAnim: 0
+      });
+    }
+
+    function addSplash(x, y, count, color) {
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = 1 + Math.random() * 4;
+        splashParticles.push({
+          x, y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 2,
+          life: 1,
+          decay: 0.02 + Math.random() * 0.03,
+          size: 2 + Math.random() * 3,
+          color: color || colors.foam
+        });
+      }
+    }
+
+    // Input handlers
+    canvas.addEventListener('touchstart', e => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      inputX = touch.clientX - rect.left;
+      touching = true;
+      if (state === 'menu') { state = 'playing'; init(); }
+      else if (state === 'dead') { state = 'playing'; init(); }
+    });
+    canvas.addEventListener('touchmove', e => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      inputX = touch.clientX - rect.left;
+    });
+    canvas.addEventListener('touchend', e => {
+      e.preventDefault();
+      touching = false;
+    });
+    canvas.addEventListener('mousedown', e => {
+      const rect = canvas.getBoundingClientRect();
+      inputX = e.clientX - rect.left;
+      touching = true;
+      if (state === 'menu') { state = 'playing'; init(); }
+      else if (state === 'dead') { state = 'playing'; init(); }
+    });
+    canvas.addEventListener('mousemove', e => {
+      if (touching) {
+        const rect = canvas.getBoundingClientRect();
+        inputX = e.clientX - rect.left;
+      }
+    });
+    canvas.addEventListener('mouseup', () => { touching = false; });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = true;
+      if (e.key === 'ArrowRight' || e.key === 'd') keys.right = true;
+      if (e.key === ' ' || e.key === 'Enter') {
+        if (state === 'menu') { state = 'playing'; init(); }
+        else if (state === 'dead') { state = 'playing'; init(); }
+      }
+    });
+    document.addEventListener('keyup', e => {
+      if (e.key === 'ArrowLeft' || e.key === 'a') keys.left = false;
+      if (e.key === 'ArrowRight' || e.key === 'd') keys.right = false;
+    });
+
+    // Collision
+    function circleRect(cx, cy, cr, rx, ry, rw, rh) {
+      const closestX = Math.max(rx, Math.min(cx, rx + rw));
+      const closestY = Math.max(ry, Math.min(cy, ry + rh));
+      const dx = cx - closestX;
+      const dy = cy - closestY;
+      return (dx * dx + dy * dy) < (cr * cr);
+    }
+
+    function checkCollision(obs) {
+      const kx = kayaker.x;
+      const ky = kayaker.y;
+      const kr = 14;
+
+      if (obs.type === 'whirlpool') {
+        const dx = kx - obs.x;
+        const dy = ky - obs.y;
+        return Math.sqrt(dx * dx + dy * dy) < (obs.w * 0.4 + kr);
+      }
+
+      const dx = kx - obs.x;
+      const dy = ky - obs.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const obsR = Math.max(obs.w, obs.h) * 0.45;
+      return dist < (obsR + kr);
+    }
+
+    function hitObstacle() {
+      if (kayaker.invincible > 0) return;
+      kayaker.lives--;
+      kayaker.invincible = 120;
+      shakeTimer = 15;
+      shakeIntensity = 8;
+      flashAlpha = 0.4;
+      addSplash(kayaker.x, kayaker.y, 20, '#e74c3c');
+      if (kayaker.lives <= 0) {
+        state = 'dead';
+        if (score > highScore) highScore = score;
+        addSplash(kayaker.x, kayaker.y, 40, colors.foam);
+        // Notify parent window (for leaderboard integration)
+        if (window.parent !== window) {
+          window.parent.postMessage({ type: 'gameOver', score: score }, '*');
+        }
+      }
+    }
+
+    // Update
+    function update() {
+      if (state !== 'playing') return;
+
+      distance += 1;
+      score = Math.floor(distance / 10);
+      difficulty = 1 + distance / 600;
+
+      // Canyon logic
+      updateCanyon();
+
+      // Kayaker movement
+      if (touching && inputX !== null) {
+        kayaker.targetX = inputX;
+      }
+      if (keys.left) kayaker.targetX = kayaker.x - 8;
+      if (keys.right) kayaker.targetX = kayaker.x + 8;
+
+      const dx = kayaker.targetX - kayaker.x;
+      kayaker.speed = dx * 0.1;
+      kayaker.x += kayaker.speed;
+      kayaker.tilt = kayaker.speed * 0.04;
+      kayaker.paddleAnim += 0.06;
+
+      // Drift toward center in canyon (current pushes inward)
+      if (canyonSqueeze > 0.1) {
+        const centerX = (riverLeft + riverRight) / 2;
+        const driftStrength = canyonSqueeze * 0.3;
+        const driftDir = centerX > kayaker.x ? 1 : -1;
+        // Push toward random side to simulate turbulence
+        const turbulence = Math.sin(Date.now() * 0.003) * canyonSqueeze * 0.8;
+        kayaker.x += turbulence;
+      }
+
+      // Clamp to river
+      const bankMargin = 20;
+      kayaker.x = Math.max(riverLeft + bankMargin, Math.min(riverRight - bankMargin, kayaker.x));
+
+      // Check bank collision in canyon
+      if (kayaker.x - 14 < riverLeft || kayaker.x + 14 > riverRight) {
+        hitObstacle();
+      }
+
+      if (kayaker.invincible > 0) kayaker.invincible--;
+
+      // Wake trail
+      if (Math.random() < 0.6) {
+        wakeTrail.push({
+          x: kayaker.x,
+          y: kayaker.y + 25,
+          life: 1,
+          size: 3 + Math.random() * 4
+        });
+      }
+
+      // Update wake
+      wakeTrail.forEach(w => {
+        w.y += 2;
+        w.life -= 0.025;
+        w.size += 0.15;
+      });
+      wakeTrail = wakeTrail.filter(w => w.life > 0);
+
+      // Spawn obstacles (reduce slightly in canyon since space is tighter)
+      const canyonSpawnMod = canyonSqueeze > 0.3 ? 1.4 : 1;
+      const spawnRate = Math.max(20, (80 - difficulty * 6) * canyonSpawnMod);
+      if (Math.random() < 1 / spawnRate) spawnObstacle();
+
+      // Multi-obstacle spawns at higher difficulty
+      if (difficulty > 3 && Math.random() < 0.005 * difficulty) {
+        const count = Math.min(3, Math.floor(difficulty / 3));
+        for (let i = 0; i < count; i++) {
+          setTimeout(() => spawnObstacle(), i * 200);
+        }
+      }
+
+      // Spawn collectibles
+      if (Math.random() < 0.008) spawnCollectible();
+
+      // Update obstacles
+      obstacles.forEach(obs => {
+        obs.y += obs.speed;
+        obs.rotation += obs.rotSpeed;
+        if (obs.type === 'whirlpool') {
+          obs.phase += 0.05;
+        }
+
+        if (!obs.hit && checkCollision(obs)) {
+          obs.hit = true;
+          hitObstacle();
+        }
+      });
+      obstacles = obstacles.filter(o => o.y < H + 100);
+
+      // Update collectibles
+      collectibles.forEach(c => {
+        c.y += c.speed;
+        c.bobPhase += 0.08;
+        if (!c.collected) {
+          const dx = kayaker.x - c.x;
+          const dy = kayaker.y - c.y;
+          if (Math.sqrt(dx * dx + dy * dy) < 25) {
+            c.collected = true;
+            c.collectAnim = 1;
+            if (c.type === 'coin') {
+              score += 10;
+              addSplash(c.x, c.y, 8, colors.coin);
+            } else {
+              kayaker.lives = Math.min(kayaker.lives + 1, 5);
+              addSplash(c.x, c.y, 12, colors.heart);
+            }
+          }
+        }
+        if (c.collected) c.collectAnim -= 0.05;
+      });
+      collectibles = collectibles.filter(c => c.y < H + 50 && (!c.collected || c.collectAnim > 0));
+
+      // Water particles
+      waterParticles.forEach(p => {
+        p.y += p.speed;
+        if (p.y > H + 10) {
+          p.y = -10;
+          p.x = riverLeft + Math.random() * riverWidth;
+        }
+      });
+
+      // Splash particles
+      splashParticles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.1;
+        p.life -= p.decay;
+      });
+      splashParticles = splashParticles.filter(p => p.life > 0);
+
+      // Update banks
+      riverBanks.forEach(b => {
+        b.y += 2;
+        if (b.y > H + 200) {
+          b.y -= H + 300;
+          b.leftOffset = Math.sin(b.y * 0.008) * 15 + Math.sin(b.y * 0.003) * 10;
+          b.rightOffset = Math.cos(b.y * 0.006) * 15 + Math.sin(b.y * 0.004) * 10;
+        }
+      });
+
+      // Shake
+      if (shakeTimer > 0) shakeTimer--;
+      if (flashAlpha > 0) flashAlpha -= 0.02;
+    }
+
+    // Drawing functions
+    function drawWater() {
+      // Deep water base
+      const grad = ctx.createLinearGradient(riverLeft, 0, riverRight, 0);
+      grad.addColorStop(0, colors.deepWater);
+      grad.addColorStop(0.15, colors.water);
+      grad.addColorStop(0.85, colors.water);
+      grad.addColorStop(1, colors.deepWater);
+      ctx.fillStyle = grad;
+      ctx.fillRect(riverLeft, 0, riverWidth, H);
+
+      // Canyon rapids effect — extra white water when squeezed
+      if (canyonSqueeze > 0.1) {
+        const intensity = canyonSqueeze;
+        const time = Date.now() * 0.004;
+        ctx.globalAlpha = intensity * 0.2;
+        ctx.fillStyle = colors.foam;
+        for (let i = 0; i < 30 * intensity; i++) {
+          const fx = riverLeft + Math.random() * riverWidth;
+          const fy = (Math.sin(time + i * 73.7) * 0.5 + 0.5) * H;
+          const fs = 2 + Math.random() * 4;
+          ctx.beginPath();
+          ctx.ellipse(fx, fy, fs, fs * 0.4, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      // Water streaks
+      const time = Date.now() * 0.001;
+      ctx.globalAlpha = 0.15;
+      ctx.strokeStyle = colors.lightWater;
+      ctx.lineWidth = 2;
+      for (let i = 0; i < 8; i++) {
+        const x = riverLeft + 30 + i * (riverWidth - 60) / 7;
+        const offset = Math.sin(time + i) * 10;
+        ctx.beginPath();
+        for (let y = 0; y < H; y += 4) {
+          const wx = x + Math.sin(y * 0.02 + time + i) * 8 + offset;
+          if (y === 0) ctx.moveTo(wx, y);
+          else ctx.lineTo(wx, y);
+        }
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+
+      // Water particles
+      waterParticles.forEach(p => {
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = colors.lightWater;
+        ctx.fillRect(p.x, p.y, p.size, p.size * 3);
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    function drawBanks() {
+      // Sort banks by y
+      const sorted = [...riverBanks].sort((a, b) => a.y - b.y);
+
+      // Left bank
+      ctx.fillStyle = colors.bankDark;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      sorted.forEach(b => {
+        ctx.lineTo(riverLeft + b.leftOffset, b.y);
+      });
+      ctx.lineTo(0, H);
+      ctx.closePath();
+      ctx.fill();
+
+      // Canyon rock walls when squeezed
+      if (canyonSqueeze > 0.05) {
+        const wallAlpha = Math.min(1, canyonSqueeze * 2);
+        ctx.globalAlpha = wallAlpha;
+
+        // Left cliff face
+        ctx.fillStyle = '#3d3225';
+        ctx.beginPath();
+        ctx.moveTo(riverLeft - 2, 0);
+        sorted.forEach(b => {
+          const rockJag = Math.sin(b.y * 0.05) * 3 + Math.sin(b.y * 0.13) * 2;
+          ctx.lineTo(riverLeft + b.leftOffset + rockJag, b.y);
+        });
+        ctx.lineTo(riverLeft - 2, H);
+        ctx.closePath();
+        ctx.fill();
+
+        // Left cliff highlight
+        ctx.fillStyle = '#5a4a3a';
+        ctx.beginPath();
+        ctx.moveTo(riverLeft + 2, 0);
+        sorted.forEach(b => {
+          const rockJag = Math.sin(b.y * 0.05) * 2;
+          ctx.lineTo(riverLeft + b.leftOffset + rockJag + 4, b.y);
+        });
+        ctx.lineTo(riverLeft + 2, H);
+        ctx.closePath();
+        ctx.fill();
+
+        // Right cliff face
+        ctx.fillStyle = '#3d3225';
+        ctx.beginPath();
+        ctx.moveTo(riverRight + 2, 0);
+        sorted.forEach(b => {
+          const rockJag = Math.sin(b.y * 0.07) * 3 + Math.cos(b.y * 0.11) * 2;
+          ctx.lineTo(riverRight + b.rightOffset + rockJag, b.y);
+        });
+        ctx.lineTo(riverRight + 2, H);
+        ctx.closePath();
+        ctx.fill();
+
+        // Right cliff highlight
+        ctx.fillStyle = '#5a4a3a';
+        ctx.beginPath();
+        ctx.moveTo(riverRight - 2, 0);
+        sorted.forEach(b => {
+          const rockJag = Math.sin(b.y * 0.07) * 2;
+          ctx.lineTo(riverRight + b.rightOffset + rockJag - 4, b.y);
+        });
+        ctx.lineTo(riverRight - 2, H);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.globalAlpha = 1;
+      }
+
+      // Left bank edge (sand/dirt)
+      ctx.strokeStyle = canyonSqueeze > 0.05 ? '#5a4a3a' : colors.sand;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      sorted.forEach((b, i) => {
+        const x = riverLeft + b.leftOffset;
+        if (i === 0) ctx.moveTo(x, b.y);
+        else ctx.lineTo(x, b.y);
+      });
+      ctx.stroke();
+
+      // Left bank grass
+      ctx.fillStyle = colors.bank;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      sorted.forEach(b => {
+        ctx.lineTo(riverLeft + b.leftOffset - 6, b.y);
+      });
+      ctx.lineTo(0, H);
+      ctx.closePath();
+      ctx.fill();
+
+      // Right bank
+      ctx.fillStyle = colors.bankDark;
+      ctx.beginPath();
+      ctx.moveTo(W, 0);
+      sorted.forEach(b => {
+        ctx.lineTo(riverRight + b.rightOffset, b.y);
+      });
+      ctx.lineTo(W, H);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.strokeStyle = canyonSqueeze > 0.05 ? '#5a4a3a' : colors.sand;
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      sorted.forEach((b, i) => {
+        const x = riverRight + b.rightOffset;
+        if (i === 0) ctx.moveTo(x, b.y);
+        else ctx.lineTo(x, b.y);
+      });
+      ctx.stroke();
+
+      ctx.fillStyle = colors.bank;
+      ctx.beginPath();
+      ctx.moveTo(W, 0);
+      sorted.forEach(b => {
+        ctx.lineTo(riverRight + b.rightOffset + 6, b.y);
+      });
+      ctx.lineTo(W, H);
+      ctx.closePath();
+      ctx.fill();
+
+      // Trees/bushes on banks
+      const time = Date.now() * 0.001;
+      sorted.forEach((b, i) => {
+        if (i % 3 === 0) {
+          // Left tree
+          const lx = riverLeft + b.leftOffset - 20;
+          const sway = Math.sin(time + b.y * 0.01) * 2;
+          ctx.fillStyle = '#1a4a0a';
+          ctx.beginPath();
+          ctx.arc(lx + sway, b.y, 12, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#237510';
+          ctx.beginPath();
+          ctx.arc(lx + sway - 3, b.y - 3, 8, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Right tree
+          const rx = riverRight + b.rightOffset + 20;
+          ctx.fillStyle = '#1a4a0a';
+          ctx.beginPath();
+          ctx.arc(rx + sway, b.y, 12, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#237510';
+          ctx.beginPath();
+          ctx.arc(rx + sway + 3, b.y - 3, 8, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+    }
+
+    function drawRock(obs) {
+      ctx.save();
+      ctx.translate(obs.x, obs.y);
+      ctx.rotate(obs.rotation);
+
+      // Shadow
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.beginPath();
+      obs.points.forEach((p, i) => {
+        const x = Math.cos(p.angle) * obs.w * 0.5 * p.rad + 3;
+        const y = Math.sin(p.angle) * obs.h * 0.5 * p.rad + 3;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.closePath();
+      ctx.fill();
+
+      // Rock body
+      ctx.fillStyle = colors.rockDark;
+      ctx.beginPath();
+      obs.points.forEach((p, i) => {
+        const x = Math.cos(p.angle) * obs.w * 0.5 * p.rad;
+        const y = Math.sin(p.angle) * obs.h * 0.5 * p.rad;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.closePath();
+      ctx.fill();
+
+      // Highlight
+      ctx.fillStyle = colors.rockLight;
+      ctx.beginPath();
+      obs.points.forEach((p, i) => {
+        const x = Math.cos(p.angle) * obs.w * 0.35 * p.rad - 3;
+        const y = Math.sin(p.angle) * obs.h * 0.35 * p.rad - 3;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.closePath();
+      ctx.fill();
+
+      // Water splash around rock
+      const time = Date.now() * 0.003;
+      ctx.fillStyle = colors.foam;
+      ctx.globalAlpha = 0.5;
+      for (let i = 0; i < 6; i++) {
+        const angle = (i / 6) * Math.PI * 2 + time;
+        const dist = Math.max(obs.w, obs.h) * 0.4 + Math.sin(time * 2 + i) * 4;
+        ctx.beginPath();
+        ctx.arc(Math.cos(angle) * dist, Math.sin(angle) * dist, 2 + Math.sin(time + i) * 1.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+
+      ctx.restore();
+    }
+
+    function drawLog(obs) {
+      ctx.save();
+      ctx.translate(obs.x, obs.y);
+      ctx.rotate(obs.rotation);
+
+      // Shadow
+      ctx.fillStyle = 'rgba(0,0,0,0.25)';
+      ctx.beginPath();
+      ctx.ellipse(3, 3, obs.w / 2, obs.h / 2, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Log body
+      ctx.fillStyle = colors.logDark;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, obs.w / 2, obs.h / 2, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Bark lines
+      ctx.strokeStyle = colors.log;
+      ctx.lineWidth = 2;
+      for (let i = -obs.w / 2 + 8; i < obs.w / 2 - 8; i += 8) {
+        ctx.beginPath();
+        ctx.moveTo(i, -obs.h / 2 + 3);
+        ctx.lineTo(i, obs.h / 2 - 3);
+        ctx.stroke();
+      }
+
+      // Highlight
+      ctx.fillStyle = colors.log;
+      ctx.globalAlpha = 0.5;
+      ctx.beginPath();
+      ctx.ellipse(0, -2, obs.w / 2 - 4, obs.h / 4, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // End circles
+      ctx.fillStyle = '#8B6914';
+      ctx.beginPath();
+      ctx.arc(-obs.w / 2 + 2, 0, obs.h / 2 - 1, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(obs.w / 2 - 2, 0, obs.h / 2 - 1, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    function drawWhirlpool(obs) {
+      ctx.save();
+      ctx.translate(obs.x, obs.y);
+
+      const time = obs.phase;
+      const r = obs.w / 2;
+
+      // Outer glow
+      ctx.fillStyle = 'rgba(26,60,94,0.3)';
+      ctx.beginPath();
+      ctx.arc(0, 0, r + 8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Spiral
+      for (let ring = 4; ring >= 0; ring--) {
+        const ringR = r * (ring / 4) * 0.9 + 5;
+        const alpha = 0.2 + (4 - ring) * 0.15;
+        ctx.strokeStyle = `rgba(93,173,226,${alpha})`;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        for (let a = 0; a < Math.PI * 4; a += 0.1) {
+          const spiralR = ringR * (1 - a / (Math.PI * 8));
+          const x = Math.cos(a + time + ring * 0.5) * spiralR;
+          const y = Math.sin(a + time + ring * 0.5) * spiralR * 0.6;
+          if (a === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+
+      // Center dark
+      const centerGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, 12);
+      centerGrad.addColorStop(0, '#0a1e3a');
+      centerGrad.addColorStop(1, 'rgba(10,30,58,0)');
+      ctx.fillStyle = centerGrad;
+      ctx.beginPath();
+      ctx.arc(0, 0, 12, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Foam dots
+      for (let i = 0; i < 8; i++) {
+        const angle = (i / 8) * Math.PI * 2 + time * 2;
+        const dist = r * 0.7 + Math.sin(time * 3 + i) * 5;
+        ctx.fillStyle = `rgba(214,234,248,${0.3 + Math.sin(time + i) * 0.2})`;
+        ctx.beginPath();
+        ctx.arc(Math.cos(angle) * dist, Math.sin(angle) * dist * 0.6, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    function drawKayaker() {
+      ctx.save();
+      ctx.translate(kayaker.x, kayaker.y);
+
+      // Blink when invincible
+      if (kayaker.invincible > 0 && Math.floor(kayaker.invincible / 4) % 2 === 0) {
+        ctx.restore();
+        return;
+      }
+
+      ctx.rotate(kayaker.tilt);
+
+      const paddleT = kayaker.paddleAnim;
+      const paddleSide = Math.sin(paddleT);
+
+      // Wake behind kayak
+      ctx.fillStyle = 'rgba(214,234,248,0.3)';
+      ctx.beginPath();
+      ctx.moveTo(-6, 20);
+      ctx.quadraticCurveTo(0, 35, 6, 20);
+      ctx.fill();
+
+      // Kayak shadow
+      ctx.fillStyle = 'rgba(0,0,0,0.2)';
+      ctx.beginPath();
+      ctx.ellipse(3, 3, 12, 26, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Kayak body
+      ctx.fillStyle = colors.kayakBody;
+      ctx.beginPath();
+      ctx.moveTo(0, -26);
+      ctx.quadraticCurveTo(14, -10, 12, 10);
+      ctx.quadraticCurveTo(8, 26, 0, 28);
+      ctx.quadraticCurveTo(-8, 26, -12, 10);
+      ctx.quadraticCurveTo(-14, -10, 0, -26);
+      ctx.closePath();
+      ctx.fill();
+
+      // Kayak dark edge
+      ctx.strokeStyle = colors.kayakDark;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Kayak center stripe
+      ctx.fillStyle = colors.kayakHighlight;
+      ctx.beginPath();
+      ctx.moveTo(0, -22);
+      ctx.quadraticCurveTo(5, 0, 0, 24);
+      ctx.quadraticCurveTo(-5, 0, 0, -22);
+      ctx.fill();
+
+      // Paddler body
+      ctx.fillStyle = '#e74c3c';
+      ctx.beginPath();
+      ctx.ellipse(0, -4, 6, 8, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Head
+      ctx.fillStyle = '#fad7a0';
+      ctx.beginPath();
+      ctx.arc(0, -14, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Helmet
+      ctx.fillStyle = '#2c3e50';
+      ctx.beginPath();
+      ctx.arc(0, -15, 5.5, Math.PI, 0);
+      ctx.fill();
+
+      // Paddle
+      const paddleAngle = paddleSide * 0.6;
+      ctx.save();
+      ctx.rotate(paddleAngle);
+
+      // Shaft
+      ctx.strokeStyle = colors.paddleShaft;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(-22, -5);
+      ctx.lineTo(22, -5);
+      ctx.stroke();
+
+      // Blades
+      ctx.fillStyle = colors.paddle;
+      // Left blade
+      ctx.beginPath();
+      ctx.ellipse(-24, -5, 4, 8, -0.3, 0, Math.PI * 2);
+      ctx.fill();
+      // Right blade
+      ctx.beginPath();
+      ctx.ellipse(24, -5, 4, 8, 0.3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Water drip from active blade
+      const dripSide = paddleSide > 0 ? 1 : -1;
+      ctx.fillStyle = 'rgba(93,173,226,0.6)';
+      ctx.beginPath();
+      ctx.arc(dripSide * 24, -5 + Math.abs(paddleSide) * 6, 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+      ctx.restore();
+    }
+
+    function drawCollectible(c) {
+      ctx.save();
+      ctx.translate(c.x, c.y + Math.sin(c.bobPhase) * 4);
+
+      if (c.collected) {
+        ctx.globalAlpha = c.collectAnim;
+        ctx.scale(1 + (1 - c.collectAnim) * 2, 1 + (1 - c.collectAnim) * 2);
+      }
+
+      if (c.type === 'coin') {
+        // Glow
+        ctx.fillStyle = 'rgba(241,196,15,0.3)';
+        ctx.beginPath();
+        ctx.arc(0, 0, 14, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = colors.coin;
+        ctx.beginPath();
+        ctx.arc(0, 0, 9, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = colors.coinDark;
+        ctx.beginPath();
+        ctx.arc(0, 0, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = colors.coin;
+        ctx.font = 'bold 10px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('$', 0, 1);
+      } else {
+        // Heart glow
+        ctx.fillStyle = 'rgba(231,76,60,0.3)';
+        ctx.beginPath();
+        ctx.arc(0, 0, 14, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Heart shape
+        ctx.fillStyle = colors.heart;
+        ctx.beginPath();
+        ctx.moveTo(0, 4);
+        ctx.bezierCurveTo(-10, -2, -10, -10, 0, -6);
+        ctx.bezierCurveTo(10, -10, 10, -2, 0, 4);
+        ctx.fill();
+      }
+
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    }
+
+    function drawHUD() {
+      // Score
+      ctx.fillStyle = 'rgba(0,0,0,0.4)';
+      ctx.roundRect(W / 2 - 60, 12, 120, 36, 18);
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 18px "Segoe UI", system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`${score} m`, W / 2, 30);
+
+      // Lives
+      for (let i = 0; i < kayaker.lives; i++) {
+        ctx.fillStyle = colors.heart;
+        ctx.beginPath();
+        const hx = 25 + i * 24;
+        const hy = 60;
+        ctx.moveTo(hx, hy + 4);
+        ctx.bezierCurveTo(hx - 8, hy - 1, hx - 8, hy - 7, hx, hy - 4);
+        ctx.bezierCurveTo(hx + 8, hy - 7, hx + 8, hy - 1, hx, hy + 4);
+        ctx.fill();
+      }
+
+      // Difficulty indicator
+      ctx.fillStyle = 'rgba(0,0,0,0.3)';
+      ctx.roundRect(W - 90, 55, 75, 20, 10);
+      ctx.fill();
+      const diffWidth = Math.min(65, (difficulty / 10) * 65);
+      const diffColor = difficulty < 3 ? '#2ecc71' : difficulty < 6 ? '#f39c12' : '#e74c3c';
+      ctx.fillStyle = diffColor;
+      ctx.roundRect(W - 85, 58, diffWidth, 14, 7);
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.font = '9px "Segoe UI", system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('RAPIDS', W - 52, 66);
+    }
+
+    function drawMenu() {
+      // Animated water background
+      drawWater();
+      drawBanks();
+
+      // Overlay
+      ctx.fillStyle = 'rgba(10,22,40,0.7)';
+      ctx.fillRect(0, 0, W, H);
+
+      // Title
+      ctx.save();
+      const time = Date.now() * 0.002;
+      ctx.translate(W / 2, H * 0.3);
+      ctx.rotate(Math.sin(time) * 0.03);
+
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 48px "Segoe UI", system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🛶', 0, -50);
+      ctx.fillText('RIVER', 0, 10);
+      ctx.fillStyle = colors.kayakHighlight;
+      ctx.fillText('RUSH', 0, 58);
+      ctx.restore();
+
+      // Instructions
+      ctx.fillStyle = 'rgba(255,255,255,0.7)';
+      ctx.font = '14px "Segoe UI", system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Dodge rocks, logs & whirlpools', W / 2, H * 0.56);
+      ctx.fillText('Collect coins for bonus points', W / 2, H * 0.56 + 24);
+      ctx.fillText('Grab hearts to restore lives', W / 2, H * 0.56 + 48);
+
+      // Controls
+      ctx.fillStyle = '#fff';
+      ctx.font = '13px "Segoe UI", system-ui, sans-serif';
+      ctx.fillText('🖱️  Mouse / Touch to steer', W / 2, H * 0.72);
+      ctx.fillText('⌨️  Arrow keys / A,D to move', W / 2, H * 0.72 + 24);
+
+      // Start prompt
+      const pulse = 0.7 + Math.sin(time * 2) * 0.3;
+      ctx.globalAlpha = pulse;
+      ctx.fillStyle = colors.kayakHighlight;
+      ctx.font = 'bold 20px "Segoe UI", system-ui, sans-serif';
+      ctx.fillText('TAP TO START', W / 2, H * 0.88);
+      ctx.globalAlpha = 1;
+
+      if (highScore > 0) {
+        ctx.fillStyle = 'rgba(255,255,255,0.5)';
+        ctx.font = '14px "Segoe UI", system-ui, sans-serif';
+        ctx.fillText(`Best: ${highScore} m`, W / 2, H * 0.94);
+      }
+    }
+
+    function drawDeath() {
+      ctx.fillStyle = 'rgba(10,22,40,0.75)';
+      ctx.fillRect(0, 0, W, H);
+
+      ctx.fillStyle = '#e74c3c';
+      ctx.font = 'bold 40px "Segoe UI", system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('CAPSIZED!', W / 2, H * 0.35);
+
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 28px "Segoe UI", system-ui, sans-serif';
+      ctx.fillText(`${score} m`, W / 2, H * 0.46);
+
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      ctx.font = '15px "Segoe UI", system-ui, sans-serif';
+      ctx.fillText(`Best: ${highScore} m`, W / 2, H * 0.53);
+
+      const pulse = 0.7 + Math.sin(Date.now() * 0.004) * 0.3;
+      ctx.globalAlpha = pulse;
+      ctx.fillStyle = colors.kayakHighlight;
+      ctx.font = 'bold 18px "Segoe UI", system-ui, sans-serif';
+      ctx.fillText('TAP TO RETRY', W / 2, H * 0.66);
+      ctx.globalAlpha = 1;
+    }
+
+    // Main draw
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+
+      if (state === 'menu') {
+        drawMenu();
+        return;
+      }
+
+      // Camera shake
+      if (shakeTimer > 0) {
+        ctx.save();
+        ctx.translate(
+          (Math.random() - 0.5) * shakeIntensity,
+          (Math.random() - 0.5) * shakeIntensity
+        );
+        shakeIntensity *= 0.9;
+      }
+
+      drawWater();
+
+      // Wake trail
+      wakeTrail.forEach(w => {
+        ctx.globalAlpha = w.life * 0.4;
+        ctx.fillStyle = colors.foam;
+        ctx.beginPath();
+        ctx.ellipse(w.x, w.y, w.size, w.size * 0.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+
+      drawBanks();
+
+      // Collectibles
+      collectibles.forEach(c => drawCollectible(c));
+
+      // Obstacles
+      obstacles.forEach(obs => {
+        if (obs.type === 'rock') drawRock(obs);
+        else if (obs.type === 'log') drawLog(obs);
+        else drawWhirlpool(obs);
+      });
+
+      // Splash particles
+      splashParticles.forEach(p => {
+        ctx.globalAlpha = p.life;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+
+      drawKayaker();
+      drawHUD();
+
+      // Canyon warning overlay
+      if (canyonState === 'narrowing' && canyonWarning > 0) {
+        const wAlpha = (canyonWarning / 120) * (0.5 + Math.sin(Date.now() * 0.015) * 0.5) * 0.6;
+        ctx.fillStyle = `rgba(241, 196, 15, ${wAlpha})`;
+        ctx.fillRect(0, 0, W, H);
+
+        if (canyonWarning > 60) {
+          ctx.save();
+          ctx.globalAlpha = Math.min(1, (canyonWarning - 60) / 30);
+          ctx.fillStyle = '#f1c40f';
+          ctx.font = 'bold 22px "Segoe UI", system-ui, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('⚠️ CANYON AHEAD ⚠️', W / 2, H * 0.18);
+          ctx.restore();
+        }
+      }
+
+      // Canyon active indicator on HUD
+      if (canyonSqueeze > 0.05) {
+        const cPulse = 0.6 + Math.sin(Date.now() * 0.008) * 0.4;
+        ctx.globalAlpha = cPulse * Math.min(1, canyonSqueeze * 3);
+        ctx.fillStyle = 'rgba(0,0,0,0.4)';
+        ctx.roundRect(W / 2 - 50, 50, 100, 22, 11);
+        ctx.fill();
+        ctx.fillStyle = '#f39c12';
+        ctx.font = 'bold 11px "Segoe UI", system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('🏔️ CANYON 🏔️', W / 2, 61);
+        ctx.globalAlpha = 1;
+      }
+
+      // Hit flash
+      if (flashAlpha > 0) {
+        ctx.fillStyle = `rgba(231,76,60,${flashAlpha})`;
+        ctx.fillRect(0, 0, W, H);
+      }
+
+      if (shakeTimer > 0) ctx.restore();
+
+      if (state === 'dead') drawDeath();
+    }
+
+    // Polyfill roundRect
+    if (!ctx.roundRect) {
+      CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+        if (typeof r === 'number') r = [r, r, r, r];
+        this.beginPath();
+        this.moveTo(x + r[0], y);
+        this.lineTo(x + w - r[1], y);
+        this.quadraticCurveTo(x + w, y, x + w, y + r[1]);
+        this.lineTo(x + w, y + h - r[2]);
+        this.quadraticCurveTo(x + w, y + h, x + w - r[2], y + h);
+        this.lineTo(x + r[3], y + h);
+        this.quadraticCurveTo(x, y + h, x, y + h - r[3]);
+        this.lineTo(x, y + r[0]);
+        this.quadraticCurveTo(x, y, x + r[0], y);
+        this.closePath();
+      };
+    }
+
+    // Game loop
+    initBanks();
+    spawnInitialWater();
+
+    function loop() {
+      update();
+      draw();
+      requestAnimationFrame(loop);
+    }
+    loop();
+  </script>
+</body>
+</html>
