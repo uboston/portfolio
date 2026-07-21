@@ -87,11 +87,11 @@ export default function Home() {
               </h1>
 
               {/* Subtitle */}
-              <p className="text-xl sm:text-2xl md:text-3xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto animate-fadeIn" style={{ animationDelay: '0.5s', opacity: 0, animationFillMode: 'forwards' }}>
+              <p className="text-xl sm:text-2xl md:text-3xl text-stone-950 dark:text-gray-100 max-w-3xl mx-auto font-semibold animate-fadeIn" style={{ animationDelay: '0.5s', opacity: 0, animationFillMode: 'forwards' }}>
                 Developer • Designer • Creator
               </p>
 
-              <p className="text-lg sm:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto animate-fadeIn" style={{ animationDelay: '1s', opacity: 0, animationFillMode: 'forwards' }}>
+              <p className="text-lg sm:text-xl text-stone-900 dark:text-gray-200 max-w-2xl mx-auto font-medium animate-fadeIn" style={{ animationDelay: '1s', opacity: 0, animationFillMode: 'forwards' }}>
                 Crafting beautiful digital experiences with modern technologies
               </p>
 
@@ -99,15 +99,15 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8 animate-fadeIn" style={{ animationDelay: '1.5s', opacity: 0, animationFillMode: 'forwards' }}>
                 <Link
                   href="/projects"
-                  className="group relative px-8 py-4 bg-gradient-to-r from-amber-700 to-stone-600 text-white font-semibold rounded-full overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl shadow-lg"
+                  className="group relative px-8 py-4 bg-gradient-to-r from-amber-950 to-stone-950 text-white font-bold rounded-full overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl shadow-lg"
                 >
                   <span className="relative z-10">View My Work</span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-stone-600 to-amber-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-stone-900 to-amber-900 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </Link>
 
                 <Link
                   href="/about"
-                  className="px-8 py-4 border-2 border-amber-700 dark:border-amber-400 text-amber-700 dark:text-amber-400 font-semibold rounded-full hover:bg-amber-700 hover:text-white dark:hover:bg-amber-400 dark:hover:text-gray-900 transition-all duration-300 hover:scale-105"
+                  className="px-8 py-4 border-2 border-stone-950 dark:border-amber-400 text-stone-950 dark:text-amber-300 font-bold rounded-full hover:bg-stone-950 hover:text-white dark:hover:bg-amber-400 dark:hover:text-gray-900 transition-all duration-300 hover:scale-105"
                 >
                   About Me
                 </Link>
@@ -116,7 +116,7 @@ export default function Home() {
               {/* Scroll Indicator */}
               <div className="pt-16 animate-bounce">
                 <svg
-                  className="w-8 h-8 mx-auto text-amber-700 dark:text-amber-400"
+                  className="w-8 h-8 mx-auto text-stone-950 dark:text-amber-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -143,7 +143,7 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className={`text-center mb-16 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
               <h2 className="text-4xl md:text-5xl font-bold gradient-text mb-4">Featured Projects</h2>
-              <p className="text-lg text-gray-600 dark:text-gray-400">Check out some of my recent work</p>
+              <p className="text-lg text-stone-800 dark:text-gray-400">Check out some of my recent work</p>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
@@ -162,7 +162,7 @@ export default function Home() {
             <div className={`text-center transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`} style={{ transitionDelay: '500ms' }}>
               <Link
                 href="/projects"
-                className="inline-block px-8 py-4 border-2 border-amber-700 dark:border-amber-400 text-amber-700 dark:text-amber-400 font-semibold rounded-full hover:bg-amber-700 hover:text-white dark:hover:bg-amber-400 dark:hover:text-gray-900 transition-all duration-300 hover:scale-105"
+                className="inline-block px-8 py-4 border-2 border-amber-950 dark:border-amber-400 text-amber-950 dark:text-amber-400 font-semibold rounded-full hover:bg-amber-950 hover:text-white dark:hover:bg-amber-400 dark:hover:text-gray-900 transition-all duration-300 hover:scale-105"
               >
                 View All Projects
               </Link>
@@ -175,7 +175,7 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className={`text-center mb-16 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`} style={{ transitionDelay: '600ms' }}>
               <h2 className="text-4xl md:text-5xl font-bold gradient-text mb-4">Life Snapshots</h2>
-              <p className="text-lg text-gray-600 dark:text-gray-400">Snapshots from my journey</p>
+              <p className="text-lg text-stone-800 dark:text-gray-400">Snapshots from my journey</p>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

@@ -35,7 +35,7 @@ export default function ProjectCard({
 
             {/* Project Details */}
             <div className="p-6 space-y-4">
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                <p className="text-stone-950 dark:text-gray-100 leading-relaxed font-medium">
                     {description}
                 </p>
 
@@ -44,7 +44,7 @@ export default function ProjectCard({
                     {technologies.map((tech) => (
                         <span
                             key={tech}
-                            className="px-3 py-1 text-sm font-medium bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 rounded-full"
+                            className="px-3 py-1 text-sm font-bold bg-amber-100 dark:bg-amber-900/60 text-amber-950 dark:text-amber-200 border border-amber-300 dark:border-amber-700/50 rounded-full"
                         >
                             {tech}
                         </span>
@@ -58,7 +58,7 @@ export default function ProjectCard({
                             href={demoUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex-1 min-w-[120px] py-2 px-4 bg-gradient-to-r from-amber-700 to-stone-600 text-white text-center font-semibold rounded-lg hover:shadow-lg transition-all duration-300 hover:scale-105"
+                            className="flex-1 min-w-[120px] py-2 px-4 bg-gradient-to-r from-amber-950 to-stone-950 text-white text-center font-bold rounded-lg hover:shadow-lg transition-all duration-300 hover:scale-105"
                         >
                             Demo
                         </a>
@@ -68,7 +68,7 @@ export default function ProjectCard({
                             href={githubUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex-1 min-w-[120px] py-2 px-4 border-2 border-amber-700 dark:border-amber-400 text-amber-700 dark:text-amber-400 text-center font-semibold rounded-lg hover:bg-amber-700 hover:text-white dark:hover:bg-amber-400 dark:hover:text-gray-900 transition-all duration-300 hover:scale-105"
+                            className="flex-1 min-w-[120px] py-2 px-4 border-2 border-stone-950 dark:border-amber-400 text-stone-950 dark:text-amber-300 text-center font-bold rounded-lg hover:bg-stone-950 hover:text-white dark:hover:bg-amber-400 dark:hover:text-gray-900 transition-all duration-300 hover:scale-105"
                         >
                             GitHub
                         </a>

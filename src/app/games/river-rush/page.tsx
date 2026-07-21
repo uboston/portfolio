@@ -131,7 +131,7 @@ export default function RiverRushPage() {
                 <div className="flex items-center justify-between">
                     <Link
                         href="/games"
-                        className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-amber-700 dark:hover:text-amber-400 transition-colors font-medium"
+                        className="flex items-center gap-2 text-stone-800 dark:text-gray-400 hover:text-amber-950 dark:hover:text-amber-400 transition-colors font-medium"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -140,7 +140,7 @@ export default function RiverRushPage() {
                     </Link>
                     <button
                         onClick={() => { setShowLeaderboard(true); loadLeaderboard(); }}
-                        className="flex items-center gap-2 px-4 py-2 rounded-full glass text-gray-700 dark:text-gray-300 hover:text-amber-700 dark:hover:text-amber-400 transition-colors font-medium text-sm"
+                        className="flex items-center gap-2 px-4 py-2 rounded-full glass text-stone-900 dark:text-gray-300 hover:text-amber-950 dark:hover:text-amber-400 transition-colors font-medium text-sm"
                     >
                         🏆 Leaderboard
                     </button>
@@ -215,7 +215,7 @@ export default function RiverRushPage() {
                                         <button
                                             onClick={handleSubmitScore}
                                             disabled={!playerName.trim() || isSubmitting}
-                                            className="px-5 py-2.5 bg-gradient-to-r from-amber-700 to-stone-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm whitespace-nowrap"
+                                            className="px-5 py-2.5 bg-gradient-to-r from-amber-950 to-stone-950 text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm whitespace-nowrap"
                                         >
                                             {isSubmitting ? '...' : 'Submit'}
                                         </button>
@@ -225,7 +225,7 @@ export default function RiverRushPage() {
 
                             {gameOver && !qualifies && (
                                 <div className="mb-6 p-4 rounded-xl bg-gray-50 dark:bg-gray-800 text-center">
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                                    <p className="text-sm text-stone-800 dark:text-gray-400">
                                         Score didn&apos;t make the top 5. Keep trying! 💪
                                     </p>
                                 </div>
@@ -277,7 +277,7 @@ export default function RiverRushPage() {
                                                     </p>
                                                 </div>
                                                 <div className="text-right">
-                                                    <p className="font-bold text-lg text-amber-700 dark:text-amber-400">
+                                                    <p className="font-bold text-lg text-amber-950 dark:text-amber-400">
                                                         {entry.score}
                                                     </p>
                                                     <p className="text-xs text-gray-500">meters</p>

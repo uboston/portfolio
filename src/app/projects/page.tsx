@@ -62,8 +62,8 @@ export default function ProjectsPage() {
                 {/* Header */}
                 <div className={`text-center mb-16 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
                     <h1 className="text-5xl md:text-6xl font-bold gradient-text mb-4">My Projects</h1>
-                    <div className="w-24 h-1 bg-gradient-to-r from-amber-700 to-stone-600 mx-auto rounded-full mb-6"></div>
-                    <p className="text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
+                    <div className="w-24 h-1 bg-gradient-to-r from-amber-900 to-stone-900 mx-auto rounded-full mb-6"></div>
+                    <p className="text-xl text-stone-950 dark:text-gray-200 max-w-3xl mx-auto font-medium">
                         Here are some of my recent projects showcasing my skills in web development, AI/ML, and cloud architecture.
                     </p>
                 </div>
@@ -85,13 +85,13 @@ export default function ProjectsPage() {
                 {/* CTA Section */}
                 <div className={`mt-20 text-center transition-all duration-1000 delay-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
                     <div className="glass p-12 rounded-2xl max-w-3xl mx-auto">
-                        <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">Interested in Working Together?</h2>
-                        <p className="text-lg text-gray-700 dark:text-gray-300 mb-8">
+                        <h2 className="text-3xl font-bold mb-4 text-stone-950 dark:text-white">Interested in Working Together?</h2>
+                        <p className="text-lg text-stone-900 dark:text-gray-200 mb-8">
                             I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.
                         </p>
                         <a
                             href="mailto:uboston@byu.edu"
-                            className="inline-block px-8 py-4 bg-gradient-to-r from-amber-700 to-stone-600 text-white font-semibold rounded-full hover:shadow-xl transition-all duration-300 hover:scale-105"
+                            className="inline-block px-8 py-4 bg-gradient-to-r from-amber-950 to-stone-950 text-white font-bold rounded-full hover:shadow-xl transition-all duration-300 hover:scale-105"
                         >
                             Get In Touch
                         </a>

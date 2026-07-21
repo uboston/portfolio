@@ -97,7 +97,7 @@ export default function AnimatedBackground() {
     return (
         <canvas
             ref={canvasRef}
-            className="fixed top-0 left-0 w-full h-full pointer-events-none opacity-70 dark:opacity-40"
+            className="fixed top-0 left-0 w-full h-full pointer-events-none opacity-35 dark:opacity-40"
             style={{ zIndex: -1 }}
         />
     );

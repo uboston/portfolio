@@ -10,21 +10,21 @@ export default function Footer() {
                     {/* Brand */}
                     <div className="space-y-4">
                         <h3 className="text-2xl font-bold gradient-text">Boston Underwood</h3>
-                        <p className="text-gray-600 dark:text-gray-400">
+                        <p className="text-stone-900 dark:text-gray-300 font-medium">
                             Master's of Information System Management student at BYU with an interest in AI and Solutions Engineering
                         </p>
                     </div>
 
                     {/* Contact - Right Aligned */}
                     <div className="space-y-4 md:text-right">
-                        <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Connect</h4>
+                        <h4 className="text-lg font-bold text-stone-950 dark:text-white">Connect</h4>
                         <div className="space-y-3">
-                            <p className="text-gray-600 dark:text-gray-400">
-                                <a href="tel:5027779207" className="hover:text-amber-700 dark:hover:text-amber-400 transition-colors">
+                            <p className="text-stone-900 dark:text-gray-300 font-medium">
+                                <a href="tel:5027779207" className="hover:text-amber-950 dark:hover:text-amber-300 transition-colors">
                                     (502) 777-9207
                                 </a>
                             </p>
-                            <p className="text-gray-600 dark:text-gray-400">
+                            <p className="text-stone-900 dark:text-gray-300 font-medium">
                                 Provo, UT
                             </p>
                         </div>
@@ -34,7 +34,7 @@ export default function Footer() {
                                 href="https://github.com/uboston"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-amber-700 hover:text-white transition-all duration-300 hover:scale-110"
+                                className="w-10 h-10 flex items-center justify-center rounded-full bg-stone-300 dark:bg-gray-800 text-stone-950 dark:text-gray-200 hover:bg-stone-950 hover:text-white transition-all duration-300 hover:scale-110"
                                 aria-label="GitHub"
                             >
                                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -47,7 +47,7 @@ export default function Footer() {
                                 href="https://www.linkedin.com/in/boston-underwood/"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-amber-700 hover:text-white transition-all duration-300 hover:scale-110"
+                                className="w-10 h-10 flex items-center justify-center rounded-full bg-stone-300 dark:bg-gray-800 text-stone-950 dark:text-gray-200 hover:bg-stone-950 hover:text-white transition-all duration-300 hover:scale-110"
                                 aria-label="LinkedIn"
                             >
                                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -58,7 +58,7 @@ export default function Footer() {
                             {/* Email */}
                             <a
                                 href="mailto:uboston@byu.edu"
-                                className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-amber-700 hover:text-white transition-all duration-300 hover:scale-110"
+                                className="w-10 h-10 flex items-center justify-center rounded-full bg-stone-300 dark:bg-gray-800 text-stone-950 dark:text-gray-200 hover:bg-stone-950 hover:text-white transition-all duration-300 hover:scale-110"
                                 aria-label="Email"
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -70,8 +70,8 @@ export default function Footer() {
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-800 text-center">
-                    <p className="text-gray-600 dark:text-gray-400">
+                <div className="mt-8 pt-8 border-t border-stone-300 dark:border-gray-800 text-center">
+                    <p className="text-stone-900 dark:text-gray-300 font-medium">
                         &copy; {currentYear} Boston Underwood. All rights reserved.
                     </p>
                 </div>
