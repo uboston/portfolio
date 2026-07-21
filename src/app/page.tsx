@@ -99,15 +99,15 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8 animate-fadeIn" style={{ animationDelay: '1.5s', opacity: 0, animationFillMode: 'forwards' }}>
                 <Link
                   href="/projects"
-                  className="group relative px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-full overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl shadow-lg"
+                  className="group relative px-8 py-4 bg-gradient-to-r from-amber-700 to-stone-600 text-white font-semibold rounded-full overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl shadow-lg"
                 >
                   <span className="relative z-10">View My Work</span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-stone-600 to-amber-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </Link>
 
                 <Link
                   href="/about"
-                  className="px-8 py-4 border-2 border-indigo-600 dark:border-indigo-400 text-indigo-600 dark:text-indigo-400 font-semibold rounded-full hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-400 dark:hover:text-gray-900 transition-all duration-300 hover:scale-105"
+                  className="px-8 py-4 border-2 border-amber-700 dark:border-amber-400 text-amber-700 dark:text-amber-400 font-semibold rounded-full hover:bg-amber-700 hover:text-white dark:hover:bg-amber-400 dark:hover:text-gray-900 transition-all duration-300 hover:scale-105"
                 >
                   About Me
                 </Link>
@@ -116,7 +116,7 @@ export default function Home() {
               {/* Scroll Indicator */}
               <div className="pt-16 animate-bounce">
                 <svg
-                  className="w-8 h-8 mx-auto text-indigo-600 dark:text-indigo-400"
+                  className="w-8 h-8 mx-auto text-amber-700 dark:text-amber-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -133,9 +133,9 @@ export default function Home() {
           </div>
 
           {/* Floating Elements */}
-          <div className="absolute top-20 left-10 w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full opacity-20 blur-xl animate-float"></div>
-          <div className="absolute bottom-20 right-10 w-32 h-32 bg-gradient-to-br from-pink-500 to-yellow-500 rounded-full opacity-20 blur-xl animate-float" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute top-1/2 right-20 w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full opacity-20 blur-xl animate-float" style={{ animationDelay: '2s' }}></div>
+          <div className="absolute top-20 left-10 w-20 h-20 bg-gradient-to-br from-amber-600 to-stone-500 rounded-full opacity-20 blur-xl animate-float"></div>
+          <div className="absolute bottom-20 right-10 w-32 h-32 bg-gradient-to-br from-amber-400 to-amber-700 rounded-full opacity-20 blur-xl animate-float" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute top-1/2 right-20 w-16 h-16 bg-gradient-to-br from-stone-400 to-amber-500 rounded-full opacity-20 blur-xl animate-float" style={{ animationDelay: '2s' }}></div>
         </div>
 
         {/* Featured Projects Section */}
@@ -162,7 +162,7 @@ export default function Home() {
             <div className={`text-center transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`} style={{ transitionDelay: '500ms' }}>
               <Link
                 href="/projects"
-                className="inline-block px-8 py-4 border-2 border-indigo-600 dark:border-indigo-400 text-indigo-600 dark:text-indigo-400 font-semibold rounded-full hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-400 dark:hover:text-gray-900 transition-all duration-300 hover:scale-105"
+                className="inline-block px-8 py-4 border-2 border-amber-700 dark:border-amber-400 text-amber-700 dark:text-amber-400 font-semibold rounded-full hover:bg-amber-700 hover:text-white dark:hover:bg-amber-400 dark:hover:text-gray-900 transition-all duration-300 hover:scale-105"
               >
                 View All Projects
               </Link>

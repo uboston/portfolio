@@ -45,7 +45,7 @@ export default function ProjectsPage() {
             description: 'Serverless web application for a sports performance coaching firm, built for scalability, speed, and low maintenance.',
             technologies: ['AWS Lambda', 'CloudFront', 'S3'],
             imageGradient: 'from-orange-500 to-red-500',
-            websiteUrl: 'https://alignsports.bostonunderwood.com',
+            websiteUrl: 'https://align-sportsperformance.com',
         },
         {
             title: 'Golden Wellness',
@@ -62,7 +62,7 @@ export default function ProjectsPage() {
                 {/* Header */}
                 <div className={`text-center mb-16 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
                     <h1 className="text-5xl md:text-6xl font-bold gradient-text mb-4">My Projects</h1>
-                    <div className="w-24 h-1 bg-gradient-to-r from-indigo-600 to-purple-600 mx-auto rounded-full mb-6"></div>
+                    <div className="w-24 h-1 bg-gradient-to-r from-amber-700 to-stone-600 mx-auto rounded-full mb-6"></div>
                     <p className="text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
                         Here are some of my recent projects showcasing my skills in web development, AI/ML, and cloud architecture.
                     </p>
@@ -91,7 +91,7 @@ export default function ProjectsPage() {
                         </p>
                         <a
                             href="mailto:uboston@byu.edu"
-                            className="inline-block px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-full hover:shadow-xl transition-all duration-300 hover:scale-105"
+                            className="inline-block px-8 py-4 bg-gradient-to-r from-amber-700 to-stone-600 text-white font-semibold rounded-full hover:shadow-xl transition-all duration-300 hover:scale-105"
                         >
                             Get In Touch
                         </a>

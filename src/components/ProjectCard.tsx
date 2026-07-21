@@ -44,7 +44,7 @@ export default function ProjectCard({
                     {technologies.map((tech) => (
                         <span
                             key={tech}
-                            className="px-3 py-1 text-sm font-medium bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-full"
+                            className="px-3 py-1 text-sm font-medium bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 rounded-full"
                         >
                             {tech}
                         </span>
@@ -58,7 +58,7 @@ export default function ProjectCard({
                             href={demoUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex-1 min-w-[120px] py-2 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-center font-semibold rounded-lg hover:shadow-lg transition-all duration-300 hover:scale-105"
+                            className="flex-1 min-w-[120px] py-2 px-4 bg-gradient-to-r from-amber-700 to-stone-600 text-white text-center font-semibold rounded-lg hover:shadow-lg transition-all duration-300 hover:scale-105"
                         >
                             Demo
                         </a>
@@ -68,7 +68,7 @@ export default function ProjectCard({
                             href={githubUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex-1 min-w-[120px] py-2 px-4 border-2 border-indigo-600 dark:border-indigo-400 text-indigo-600 dark:text-indigo-400 text-center font-semibold rounded-lg hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-400 dark:hover:text-gray-900 transition-all duration-300 hover:scale-105"
+                            className="flex-1 min-w-[120px] py-2 px-4 border-2 border-amber-700 dark:border-amber-400 text-amber-700 dark:text-amber-400 text-center font-semibold rounded-lg hover:bg-amber-700 hover:text-white dark:hover:bg-amber-400 dark:hover:text-gray-900 transition-all duration-300 hover:scale-105"
                         >
                             GitHub
                         </a>

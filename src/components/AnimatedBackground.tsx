@@ -60,7 +60,7 @@ export default function AnimatedBackground() {
                 if (particle.y < 0) particle.y = canvas.height;
 
                 // Draw particle
-                ctx.fillStyle = `rgba(99, 102, 241, ${particle.opacity})`;
+                ctx.fillStyle = `rgba(184, 151, 126, ${particle.opacity})`;
                 ctx.beginPath();
                 ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
                 ctx.fill();
@@ -74,7 +74,7 @@ export default function AnimatedBackground() {
                     const distance = Math.sqrt(dx * dx + dy * dy);
 
                     if (distance < 150) {
-                        ctx.strokeStyle = `rgba(139, 92, 246, ${0.1 * (1 - distance / 150)})`;
+                        ctx.strokeStyle = `rgba(198, 168, 125, ${0.1 * (1 - distance / 150)})`;
                         ctx.lineWidth = 1;
                         ctx.beginPath();
                         ctx.moveTo(particle.x, particle.y);

@@ -20,7 +20,7 @@ export default function Footer() {
                         <h4 className="text-lg font-semibold text-gray-900 dark:text-white">Connect</h4>
                         <div className="space-y-3">
                             <p className="text-gray-600 dark:text-gray-400">
-                                <a href="tel:5027779207" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                                <a href="tel:5027779207" className="hover:text-amber-700 dark:hover:text-amber-400 transition-colors">
                                     (502) 777-9207
                                 </a>
                             </p>
@@ -34,7 +34,7 @@ export default function Footer() {
                                 href="https://github.com/uboston"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-indigo-600 hover:text-white transition-all duration-300 hover:scale-110"
+                                className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-amber-700 hover:text-white transition-all duration-300 hover:scale-110"
                                 aria-label="GitHub"
                             >
                                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -47,7 +47,7 @@ export default function Footer() {
                                 href="https://www.linkedin.com/in/boston-underwood/"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-indigo-600 hover:text-white transition-all duration-300 hover:scale-110"
+                                className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-amber-700 hover:text-white transition-all duration-300 hover:scale-110"
                                 aria-label="LinkedIn"
                             >
                                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -58,7 +58,7 @@ export default function Footer() {
                             {/* Email */}
                             <a
                                 href="mailto:uboston@byu.edu"
-                                className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-indigo-600 hover:text-white transition-all duration-300 hover:scale-110"
+                                className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-amber-700 hover:text-white transition-all duration-300 hover:scale-110"
                                 aria-label="Email"
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

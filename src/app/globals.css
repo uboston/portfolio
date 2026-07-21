@@ -2,34 +2,34 @@
 
 @layer base {
   :root {
-    /* Color Palette - Vibrant & Modern */
-    --primary: #6366f1;
-    --primary-dark: #4f46e5;
-    --primary-light: #818cf8;
-    --secondary: #ec4899;
-    --secondary-dark: #db2777;
-    --accent: #8b5cf6;
+    /* Color Palette - Warm Beige / Tan */
+    --primary: #b8977e;
+    --primary-dark: #a07d63;
+    --primary-light: #d4b896;
+    --secondary: #c9958a;
+    --secondary-dark: #b07e74;
+    --accent: #c6a87d;
     --success: #10b981;
     --warning: #f59e0b;
 
     /* Backgrounds */
     --background: #ffffff;
-    --background-secondary: #f8fafc;
+    --background-secondary: #faf8f5;
     --foreground: #0f172a;
     --foreground-secondary: #475569;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    --gradient-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-    --gradient-hero: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    --gradient-primary: linear-gradient(135deg, #c4a97d 0%, #a07d63 100%);
+    --gradient-secondary: linear-gradient(135deg, #d4b896 0%, #c9958a 100%);
+    --gradient-accent: linear-gradient(135deg, #c6a87d 0%, #b8977e 100%);
+    --gradient-hero: linear-gradient(135deg, #c4a97d 0%, #a07d63 50%, #c9958a 100%);
 
     /* Shadows */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
     --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
-    --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.4);
+    --shadow-glow: 0 0 20px rgba(184, 151, 126, 0.4);
 
     /* Transitions */
     --transition-fast: 150ms ease-in-out;
@@ -42,7 +42,7 @@
     --background-secondary: #1a1a1a;
     --foreground: #f1f5f9;
     --foreground-secondary: #94a3b8;
-    --shadow-glow: 0 0 30px rgba(139, 92, 246, 0.5);
+    --shadow-glow: 0 0 30px rgba(198, 168, 125, 0.5);
   }
 
   * {

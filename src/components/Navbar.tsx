@@ -51,13 +51,13 @@ export default function Navbar() {
                                 key={item.path}
                                 href={item.path}
                                 className={`text-base font-medium transition-all duration-300 relative group ${isActive(item.path)
-                                    ? 'text-indigo-600 dark:text-indigo-400'
-                                    : 'text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400'
+                                    ? 'text-amber-700 dark:text-amber-400'
+                                    : 'text-gray-700 dark:text-gray-300 hover:text-amber-700 dark:hover:text-amber-400'
                                     }`}
                             >
                                 {item.name}
                                 <span
-                                    className={`absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-indigo-600 to-purple-600 transform origin-left transition-transform duration-300 ${isActive(item.path) ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
+                                    className={`absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-amber-700 to-stone-600 transform origin-left transition-transform duration-300 ${isActive(item.path) ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
                                         }`}
                                 ></span>
                             </Link>
@@ -119,7 +119,7 @@ export default function Navbar() {
                             href={item.path}
                             onClick={() => setIsOpen(false)}
                             className={`block px-4 py-3 rounded-lg text-base font-medium transition-all duration-300 ${isActive(item.path)
-                                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white'
+                                ? 'bg-gradient-to-r from-amber-700 to-stone-600 text-white'
                                 : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                                 }`}
                         >

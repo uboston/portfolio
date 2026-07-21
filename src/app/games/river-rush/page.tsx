@@ -131,7 +131,7 @@ export default function RiverRushPage() {
                 <div className="flex items-center justify-between">
                     <Link
                         href="/games"
-                        className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium"
+                        className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-amber-700 dark:hover:text-amber-400 transition-colors font-medium"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -140,7 +140,7 @@ export default function RiverRushPage() {
                     </Link>
                     <button
                         onClick={() => { setShowLeaderboard(true); loadLeaderboard(); }}
-                        className="flex items-center gap-2 px-4 py-2 rounded-full glass text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium text-sm"
+                        className="flex items-center gap-2 px-4 py-2 rounded-full glass text-gray-700 dark:text-gray-300 hover:text-amber-700 dark:hover:text-amber-400 transition-colors font-medium text-sm"
                     >
                         🏆 Leaderboard
                     </button>
@@ -210,12 +210,12 @@ export default function RiverRushPage() {
                                             placeholder="Your name"
                                             maxLength={20}
                                             autoFocus
-                                            className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                            className="flex-1 px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                                         />
                                         <button
                                             onClick={handleSubmitScore}
                                             disabled={!playerName.trim() || isSubmitting}
-                                            className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm whitespace-nowrap"
+                                            className="px-5 py-2.5 bg-gradient-to-r from-amber-700 to-stone-600 text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm whitespace-nowrap"
                                         >
                                             {isSubmitting ? '...' : 'Submit'}
                                         </button>
@@ -242,7 +242,7 @@ export default function RiverRushPage() {
                             {/* Leaderboard Table */}
                             {loading ? (
                                 <div className="text-center py-8">
-                                    <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+                                    <div className="w-8 h-8 border-2 border-amber-700 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
                                     <p className="text-sm text-gray-500">Loading leaderboard...</p>
                                 </div>
                             ) : leaderboard.length === 0 ? (
@@ -261,7 +261,7 @@ export default function RiverRushPage() {
                                                 key={entry.id}
                                                 className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-300 ${
                                                     isHighlighted
-                                                        ? 'bg-indigo-50 dark:bg-indigo-900/30 ring-2 ring-indigo-400'
+                                                        ? 'bg-amber-50 dark:bg-amber-900/30 ring-2 ring-amber-400'
                                                         : 'bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800'
                                                 }`}
                                             >
@@ -277,7 +277,7 @@ export default function RiverRushPage() {
                                                     </p>
                                                 </div>
                                                 <div className="text-right">
-                                                    <p className="font-bold text-lg text-indigo-600 dark:text-indigo-400">
+                                                    <p className="font-bold text-lg text-amber-700 dark:text-amber-400">
                                                         {entry.score}
                                                     </p>
                                                     <p className="text-xs text-gray-500">meters</p>
